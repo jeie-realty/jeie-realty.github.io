@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>내 매물 보기 | 호반제이부동산</title>
+<meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer"><!-- 손님 페이지는 항상 검색 제외 -->
+<link rel="stylesheet" href="assets/site.css?v=11111637"></head><body>
+<main class="wrap">
+ <div class="gate" id="gate"><h2>손님 전용 매물 페이지</h2>
+  <p class="mut">상담 때 받으신 링크로 들어와서 비밀번호 4자리를 입력해 주세요.</p>
+  <input id="pw" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="비밀번호 4자리" autocomplete="off"><button id="go" style="width:100%">열기</button>
+  <p class="mut" id="msg" style="font-size:14px;margin-top:12px"></p>
+  <p class="mut" style="font-size:13px;margin-top:14px">비밀번호를 5번 틀리면 잠겨요. 페이지는 만든 날부터 30일 동안 볼 수 있어요.</p></div>
+ <div id="page" hidden></div>
+</main>
+<script src="assets/site.js?v=11111637"></script>
+<script>
+// 비밀번호는 서버(Supabase open_client_page)에서 확인. 이 페이지에는 공개 허용 칸만 옴
+const SB='https://ctgaawyuwqihybxrdcgt.supabase.co',KEY='sb_publishable_g-3Lbb_ygZL5gTvDvU06OA_HoWDzGaE';
+const NAMEMAP={'래미안':'래미안 용산 더 센트럴','써밋':'용산 푸르지오 써밋','호반':'용산 호반써밋 에이디션','DK':'DK밸리뷰 용산','시티파크':'용산 시티파크','파크타워':'용산 파크타워','센트럴파크':'용산 센트럴파크','아스테리움':'아스테리움 용산','에테르나인용산':'에테르나인 용산','에피소드':'에피소드 용산'};
+const tok=(new URLSearchParams(location.hash.slice(1)).get('t')||'').trim();
+chrome('client');
+const $=s=>document.querySelector(s),msg=t=>$('#msg').textContent=t;
+if(!tok){msg('링크가 올바르지 않아요. 받으신 링크를 다시 눌러 주세요.');$('#go').disabled=true}
+const ERR={notfound:'없는 페이지예요. 링크를 다시 확인해 주세요.',locked:'비밀번호를 5번 틀려서 잠겼어요. 사무소에 연락해 주세요.',expired:'볼 수 있는 기간(30일)이 지났어요. 사무소에 연장을 요청해 주세요.'};
+const d10=s=>String(s||'').slice(0,10);
+async function openPage(){const pw=$('#pw').value.trim();if(!/^\d{4}$/.test(pw)){msg('숫자 4자리를 입력해 주세요.');return}
+ $('#go').disabled=true;msg('확인 중…');
+ try{const r=await fetch(SB+'/rest/v1/rpc/open_client_page',{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'},body:JSON.stringify({p_token:tok,p_pw:pw})});
+  const j=await r.json();$('#go').disabled=false;
+  if(j.error){msg(j.error==='wrong'?`비밀번호가 맞지 않아요. (${j.left}번 더 틀리면 잠겨요)`:(ERR[j.error]||'열 수 없어요.'));$('#pw').value='';return}
+  show(j)}catch(e){$('#go').disabled=false;msg('연결이 잘 안 돼요. 잠시 후 다시 해 주세요.')}}
+function show(P){$('#gate').hidden=true;const el=$('#page');el.hidden=false;
+ const items=(P.items||[]).map(x=>{const {deal,...rest}=x;return norm({...rest,complex:NAMEMAP[x.danji]||x.danji||'기타',pyeongKind:x.cat==='아파트'?'공급':'전용',deals:String(deal||'').split(',').map(s=>s.trim()).filter(Boolean)})});
+ const tel=OFFICE.tel?`<a class="btn" href="tel:${OFFICE.tel.replace(/[^0-9]/g,'')}">${esc(OFFICE.tel)} 전화로 문의</a>`:'';
+ el.innerHTML=`<section><h2>${esc(P.title)}</h2><p class="mut" style="margin-top:-8px">${d10(P.created)} 작성 · ${d10(P.expires)}까지 볼 수 있어요</p>
+ ${P.cond?`<div class="note"><b>상담하신 조건</b><div style="white-space:pre-wrap">${esc(P.cond)}</div></div>`:''}
+ ${P.note?`<div class="box" style="margin-bottom:16px;white-space:pre-wrap">💬 ${esc(P.note)}</div>`:''}
+ <div class="grid">${items.map(x=>card(x,x.avail?'':'<p class="mut" style="margin:8px 0 0"><b>거래 상황이 바뀌었어요.</b> 사무소에 확인해 주세요.</p>')).join('')||'<p class="mut">담긴 매물이 없어요.</p>'}</div>
+ <div style="margin-top:18px">${tel}</div>
+ <p class="mut" style="font-size:13px;margin-top:16px">이 페이지에는 임대인·세입자 정보와 정확한 호수가 나오지 않아요. 자세한 내용은 상담 때 안내해 드려요.</p></section>`}
+$('#go').onclick=openPage;$('#pw').onkeydown=e=>{if(e.key==='Enter')openPage()};
+</script>
+</body></html>
