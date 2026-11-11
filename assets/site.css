@@ -1,5 +1,6 @@
-:root{--bg:#f7f6f2;--card:#fff;--ink:#1d2430;--mut:#6b7280;--line:#e5e3dc;--acc:#0f5c4d;--acc2:#e8f1ee;--warn:#9a3412;--r:12px}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171c;--card:#1c2027;--ink:#e8eaed;--mut:#9aa3ae;--line:#2c323b;--acc:#5fc4ad;--acc2:#1f2d2a;--warn:#f0a070}}
+@import url("https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap");
+:root{--bg:#ffffff;--card:#fff;--ink:#222;--mut:#757575;--line:#f0ebe7;--acc:#f26b1d;--acc2:#fff1e8;--chipink:#c2500f;--warn:#d9560c;--r:18px;--hero:linear-gradient(180deg,#ffeee2,#fff);--ph:linear-gradient(135deg,#ffd0b0,#f59a62);--tag:#d9560c;--foot:#faf8f6;--shadow:0 4px 14px #f26b1d1a;--disp:"Gowun Dodum","Apple SD Gothic Neo",sans-serif;--body:"Apple SD Gothic Neo","IBM Plex Sans KR",sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17130f;--card:#211b16;--ink:#efe9e4;--mut:#a89d94;--line:#3a2f27;--acc:#ff9152;--acc2:#3a2516;--chipink:#ffb183;--warn:#c2500f;--hero:linear-gradient(180deg,#2b1d13,#17130f);--ph:linear-gradient(135deg,#8a4a24,#5a2c12);--tag:#d9560c;--foot:#1c1712;--shadow:0 4px 14px #0006}}
 *{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
 a{color:var(--acc)}img{max-width:100%}
 .demo-bar{background:var(--warn);color:#fff;text-align:center;font-size:13px;padding:6px 16px}
@@ -33,3 +34,17 @@ dl.spec{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:8px 0 0;
 .faq details{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px}.faq summary{cursor:pointer;font-weight:600}
 table.t{width:100%;border-collapse:collapse;font-size:14px}table.t th,table.t td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left}
 @media (max-width:600px){nav.main{margin-left:0;width:100%;overflow-x:auto;flex-wrap:nowrap}.hero{padding:28px 0 20px}}
+
+/* ---- G안(주황 앱형) 색·모양·글꼴 ---- */
+body{font-family:var(--body)}
+h1,h2,h3,.logo{font-family:var(--disp)}
+.hero{background:var(--hero);border-radius:var(--r);padding:48px 24px 32px;margin-top:16px}
+.search,.box,.faq details,.note{border-radius:var(--r)}
+.search select,.search input,.search button,.gate input,.gate button,.btn,nav.main a{border-radius:12px}
+.card{border:0;box-shadow:var(--shadow);border-radius:var(--r)}
+.ph{background:var(--ph)!important}
+.ph .tag{background:#fff;color:var(--tag)}
+.chip{color:var(--chipink);background:var(--acc2)}
+footer{background:var(--foot)}
+.box{border-color:transparent;box-shadow:var(--shadow)}
+@media (max-width:600px){.hero{padding:28px 18px 20px}}
