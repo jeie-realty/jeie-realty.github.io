@@ -2,41 +2,63 @@
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>내 매물 보기 | 호반제이부동산</title>
 <meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer"><!-- 손님 페이지는 항상 검색 제외 -->
-<link rel="stylesheet" href="assets/site.css?v=11111637"></head><body>
+<link rel="stylesheet" href="assets/site.css?v=11111930"></head><body>
 <main class="wrap">
- <div class="gate" id="gate"><h2>손님 전용 매물 페이지</h2>
-  <p class="mut">상담 때 받으신 링크로 들어와서 비밀번호 4자리를 입력해 주세요.</p>
+ <div class="gate" id="gate"><h2>내 매물 보기</h2>
+  <p class="mut" id="gtxt"></p>
+  <input id="ph" type="tel" inputmode="tel" maxlength="13" placeholder="전화번호 (숫자만 입력)" autocomplete="off" style="letter-spacing:1px;font-size:18px" hidden>
   <input id="pw" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="비밀번호 4자리" autocomplete="off"><button id="go" style="width:100%">열기</button>
   <p class="mut" id="msg" style="font-size:14px;margin-top:12px"></p>
-  <p class="mut" style="font-size:13px;margin-top:14px">비밀번호를 5번 틀리면 잠겨요. 페이지는 만든 날부터 30일 동안 볼 수 있어요.</p></div>
+  <p class="mut" style="font-size:13px;margin-top:14px">비밀번호는 상담 때 사무소에서 알려 드린 숫자 4자리예요. 5번 틀리면 잠기고, 페이지는 만든 날부터 30일 동안 볼 수 있어요.</p></div>
  <div id="page" hidden></div>
 </main>
-<script src="assets/site.js?v=11111637"></script>
+<script src="assets/site.js?v=11111930"></script>
 <script>
-// 비밀번호는 서버(Supabase open_client_page)에서 확인. 이 페이지에는 공개 허용 칸만 옴
+// 비밀번호는 서버(Supabase open_client_page / open_client_by_phone)에서 확인. 응답에는 그 손님 페이지에 담긴 매물의 공개 허용 칸만 옴
+// 매물 상세(#d=번호)는 이 화면에서 비밀번호를 통과한 뒤에만 보여 줌 (주소로 바로 열면 비밀번호 화면)
 const SB='https://ctgaawyuwqihybxrdcgt.supabase.co',KEY='sb_publishable_g-3Lbb_ygZL5gTvDvU06OA_HoWDzGaE';
 const NAMEMAP={'래미안':'래미안 용산 더 센트럴','써밋':'용산 푸르지오 써밋','호반':'용산 호반써밋 에이디션','DK':'DK밸리뷰 용산','시티파크':'용산 시티파크','파크타워':'용산 파크타워','센트럴파크':'용산 센트럴파크','아스테리움':'아스테리움 용산','에테르나인용산':'에테르나인 용산','에피소드':'에피소드 용산'};
-const tok=(new URLSearchParams(location.hash.slice(1)).get('t')||'').trim();
+const hp=()=>new URLSearchParams(location.hash.slice(1));
+const tok=(hp().get('t')||'').trim();
 chrome('client');
 const $=s=>document.querySelector(s),msg=t=>$('#msg').textContent=t;
-if(!tok){msg('링크가 올바르지 않아요. 받으신 링크를 다시 눌러 주세요.');$('#go').disabled=true}
+let PAGE=null;   // 비밀번호를 통과한 뒤에만 채워짐 (메모리에만, 새로고침하면 다시 비밀번호)
+if(tok){$('#gtxt').textContent='상담 때 받으신 링크예요. 비밀번호 4자리를 입력해 주세요.'}
+else{$('#ph').hidden=false;$('#gtxt').textContent='상담 때 알려 드린 전화번호와 비밀번호 4자리를 입력해 주세요.'}
 const ERR={notfound:'없는 페이지예요. 링크를 다시 확인해 주세요.',locked:'비밀번호를 5번 틀려서 잠겼어요. 사무소에 연락해 주세요.',expired:'볼 수 있는 기간(30일)이 지났어요. 사무소에 연장을 요청해 주세요.'};
 const d10=s=>String(s||'').slice(0,10);
-async function openPage(){const pw=$('#pw').value.trim();if(!/^\d{4}$/.test(pw)){msg('숫자 4자리를 입력해 주세요.');return}
+async function call(fn,body){const r=await fetch(SB+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'},body:JSON.stringify(body)});return r.json()}
+async function openPage(){const pw=$('#pw').value.trim(),ph=$('#ph').value.replace(/\D/g,'');
+ if(!tok&&ph.length<8){msg('전화번호를 입력해 주세요.');return}
+ if(!/^\d{4}$/.test(pw)){msg('비밀번호 숫자 4자리를 입력해 주세요.');return}
  $('#go').disabled=true;msg('확인 중…');
- try{const r=await fetch(SB+'/rest/v1/rpc/open_client_page',{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'},body:JSON.stringify({p_token:tok,p_pw:pw})});
-  const j=await r.json();$('#go').disabled=false;
-  if(j.error){msg(j.error==='wrong'?`비밀번호가 맞지 않아요. (${j.left}번 더 틀리면 잠겨요)`:(ERR[j.error]||'열 수 없어요.'));$('#pw').value='';return}
-  show(j)}catch(e){$('#go').disabled=false;msg('연결이 잘 안 돼요. 잠시 후 다시 해 주세요.')}}
-function show(P){$('#gate').hidden=true;const el=$('#page');el.hidden=false;
- const items=(P.items||[]).map(x=>{const {deal,...rest}=x;return norm({...rest,complex:NAMEMAP[x.danji]||x.danji||'기타',pyeongKind:x.cat==='아파트'?'공급':'전용',deals:String(deal||'').split(',').map(s=>s.trim()).filter(Boolean)})});
- const tel=OFFICE.tel?`<a class="btn" href="tel:${OFFICE.tel.replace(/[^0-9]/g,'')}">${esc(OFFICE.tel)} 전화로 문의</a>`:'';
- el.innerHTML=`<section><h2>${esc(P.title)}</h2><p class="mut" style="margin-top:-8px">${d10(P.created)} 작성 · ${d10(P.expires)}까지 볼 수 있어요</p>
- ${P.cond?`<div class="note"><b>상담하신 조건</b><div style="white-space:pre-wrap">${esc(P.cond)}</div></div>`:''}
- ${P.note?`<div class="box" style="margin-bottom:16px;white-space:pre-wrap">💬 ${esc(P.note)}</div>`:''}
- <div class="grid">${items.map(x=>card(x,x.avail?'':'<p class="mut" style="margin:8px 0 0"><b>거래 상황이 바뀌었어요.</b> 사무소에 확인해 주세요.</p>')).join('')||'<p class="mut">담긴 매물이 없어요.</p>'}</div>
- <div style="margin-top:18px">${tel}</div>
- <p class="mut" style="font-size:13px;margin-top:16px">이 페이지에는 임대인·세입자 정보와 정확한 호수가 나오지 않아요. 자세한 내용은 상담 때 안내해 드려요.</p></section>`}
+ try{const j=tok?await call('open_client_page',{p_token:tok,p_pw:pw}):await call('open_client_by_phone',{p_phone:ph,p_pw:pw});$('#go').disabled=false;
+  if(j.error){$('#pw').value='';
+   if(!tok){msg('전화번호 또는 비밀번호가 맞지 않아요.');return}   // 전화번호 방식은 실패 이유를 알려 주지 않음
+   msg(j.error==='wrong'?`비밀번호가 맞지 않아요. (${j.left}번 더 틀리면 잠겨요)`:(ERR[j.error]||'열 수 없어요.'));return}
+  PAGE=j;route()}catch(e){$('#go').disabled=false;msg('연결이 잘 안 돼요. 잠시 후 다시 해 주세요.')}}
+function items(){return (PAGE.items||[]).map(x=>{const {deal,...rest}=x;return norm({...rest,complex:NAMEMAP[x.danji]||x.danji||'기타',pyeongKind:x.cat==='아파트'?'공급':'전용',deals:String(deal||'').split(',').map(s=>s.trim()).filter(Boolean)})})}
+function condHtml(P){const F=[['입주일',P.move_in],['희망거래유형',P.want_deal],['희망보증금',P.want_deposit],['희망월세',P.want_rent]].filter(([,v])=>v);
+ if(!F.length&&!P.cond)return '';
+ return `<div class="note"><b>찾으시는 조건</b>${F.length?`<dl class="spec">${F.map(([l,v])=>`<dt>${l}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`:''}${P.cond?`<div style="white-space:pre-wrap;margin-top:4px">${esc(P.cond)}</div>`:''}</div>`}
+function telBtn(){return OFFICE.tel?`<a class="btn" href="tel:${OFFICE.tel.replace(/[^0-9]/g,'')}">${esc(OFFICE.tel)} 전화로 문의</a>`:''}
+function route(){if(!PAGE){$('#gate').hidden=false;$('#page').hidden=true;return}
+ $('#gate').hidden=true;const el=$('#page');el.hidden=false;const L=items(),d=hp().get('d');
+ const back=tok?`#t=${encodeURIComponent(tok)}`:'#';
+ if(d){const x=L.find(y=>String(y.n)===d);
+  if(!x){el.innerHTML=`<section><p class="mut">이 페이지에 없는 매물이에요.</p><a href="${back}">← 목록으로</a></section>`;return}
+  el.innerHTML=`<section><a href="${back}">← ${esc(PAGE.title)}</a><div style="max-width:560px;margin-top:12px">${card(x,`<dl class="spec">
+   <dt>분류</dt><dd>${esc(x.cat||'')}</dd><dt>단지</dt><dd>${esc(x.complex)}</dd>${x.type?`<dt>타입</dt><dd>${esc(x.type)}</dd>`:''}
+   ${x.pyeong?`<dt>면적</dt><dd>${esc(x.pyeongKind)} ${x.pyeong}평${x.area?` (${x.area}㎡)`:''}</dd>`:''}${x.floor?`<dt>층</dt><dd>${esc(x.floor)}</dd>`:''}${x.dir?`<dt>방향</dt><dd>${esc(x.dir)}향</dd>`:''}
+   <dt>거래</dt><dd>${esc((x.deals||[]).join(', ')||'상담')}</dd>${x.checked?`<dt>확인일</dt><dd>${esc(x.checked)}</dd>`:''}<dt>상태</dt><dd>${x.avail?'거래 가능':'<b>거래 상황이 바뀌었어요.</b> 사무소에 확인해 주세요.'}</dd></dl>`)}</div>
+   <div style="margin-top:18px">${telBtn()}</div><p class="mut" style="font-size:13px;margin-top:14px">정확한 호수와 임대인 정보는 상담 때 안내해 드려요.</p></section>`;return}
+ el.innerHTML=`<section><h2>${esc(PAGE.title)}</h2><p class="mut" style="margin-top:-8px">${d10(PAGE.created)} 작성 · ${d10(PAGE.expires)}까지 볼 수 있어요</p>
+ ${condHtml(PAGE)}
+ ${PAGE.note?`<div class="box" style="margin-bottom:16px;white-space:pre-wrap">💬 ${esc(PAGE.note)}</div>`:''}
+ <div class="grid">${L.map(x=>`<a href="${tok?`#t=${encodeURIComponent(tok)}&`:'#'}d=${x.n}" style="text-decoration:none;color:inherit">${card(x,(x.avail?'':'<p class="mut" style="margin:8px 0 0"><b>거래 상황이 바뀌었어요.</b> 사무소에 확인해 주세요.</p>')+'<p class="mut" style="margin:8px 0 0;font-size:13px">자세히 보기 →</p>')}</a>`).join('')||'<p class="mut">담긴 매물이 없어요.</p>'}</div>
+ <div style="margin-top:18px">${telBtn()}</div>
+ <p class="mut" style="font-size:13px;margin-top:16px">이 페이지에는 임대인·세입자 정보와 정확한 호수가 나오지 않아요. 자세한 내용은 상담 때 안내해 드려요.</p></section>`;scrollTo(0,0)}
+window.addEventListener('hashchange',route);
 $('#go').onclick=openPage;$('#pw').onkeydown=e=>{if(e.key==='Enter')openPage()};
 </script>
 </body></html>

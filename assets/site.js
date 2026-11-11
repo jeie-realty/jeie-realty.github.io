@@ -23,7 +23,7 @@ function card(x,extra=''){const sz=x.pyeong?`${x.pyeongKind||'전용'} ${x.pyeon
 function chrome(active){
  document.body.insertAdjacentHTML('afterbegin',`<div class="demo-bar">정식 오픈 준비 중인 페이지예요. 매물 조건은 상담으로 꼭 확인해 주세요.</div>
  <header class="top"><div class="wrap"><a class="logo" href="index.html">호반제이부동산<small>${OFFICE.name}</small></a>
- <nav class="main">${[['index','홈'],['listings','매물 보기'],['info','부동산 정보실']].map(([k,l])=>`<a href="${k}.html" class="${k===active?'on':''}">${l}</a>`).join('')}</nav></div></header>`);
+ <nav class="main">${[['index','홈'],['listings','매물 보기'],['info','부동산 정보실'],['client','내 매물 보기']].map(([k,l])=>`<a href="${k}.html" class="${k===active?'on':''}">${l}</a>`).join('')}</nav></div></header>`);
  const line=[OFFICE.ceo&&`대표 공인중개사 ${OFFICE.ceo}`,OFFICE.reg&&`등록번호 ${OFFICE.reg}`].filter(Boolean).join(' · '),line2=[OFFICE.addr,OFFICE.tel&&`대표전화 ${OFFICE.tel}`,OFFICE.fax&&`팩스 ${OFFICE.fax}`,OFFICE.email&&`이메일 ${OFFICE.email}`,OFFICE.hours].filter(Boolean).join(' · ');
  document.body.insertAdjacentHTML('beforeend',`<footer><div class="wrap"><b>${OFFICE.name}</b><br>${line}${line2?'<br>'+line2:''}
  <div class="legal">매물 정보는 중개대상물 표시·광고 명시사항(소재지·면적·가격·거래형태·층·방향 등)에 따라 표시하며, 정확한 호수는 공개하지 않아요. 실제 거래 조건은 상담으로 확인해 주세요.${window.LIST_UPDATED?` · 매물 갱신 ${window.LIST_UPDATED}`:''}</div></div></footer>`)}
