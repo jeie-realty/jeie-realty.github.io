@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>매물 보기 | 호반제이부동산</title><meta name="robots" content="noindex,nofollow">
+<meta name="description" content="용산 신용산역 일대 오피스텔·아파트 매매·전세·월세 매물 목록.">
+<link rel="stylesheet" href="assets/site.css"></head><body>
+<main class="wrap"><section>
+ <h2>매물 보기 <span class="mut" id="cnt"></span></h2>
+ <p class="mut" style="margin-top:-6px">지금 거래 가능한 매물이에요. 정확한 호수는 공개하지 않고 층(저·중·고층)만 표시해요. 사진은 순서대로 올리는 중이에요.</p>
+ <div class="search" style="margin-bottom:12px"><input id="q" placeholder="단지명·타입 검색 (사이트 안 검색)"><select id="sort"><option value="new">최신순</option><option value="low">가격 낮은순</option><option value="high">가격 높은순</option><option value="area">넓은 면적순</option></select></div>
+ <div class="filters" id="cat"></div><div class="filters" id="deal"></div><div class="filters" id="cx"></div>
+ <div class="grid" id="list"></div>
+</section></main>
+<script src="assets/site.js"></script>
+<script>
+let L=[],K='',D='',C='';const P=new URLSearchParams(location.search);D=P.get('deal')||'';const q=document.getElementById('q');q.value=P.get('q')||'';
+const pv=x=>x.sale||x.jeonse||x.deposit||0;
+function chipRow(el,vals,cur,set){el.innerHTML=['전체',...vals].map(v=>`<button class="${(v==='전체'?'':v)===cur?'on':''}">${v}</button>`).join('');el.querySelectorAll('button').forEach(b=>b.onclick=()=>{set(b.textContent==='전체'?'':b.textContent);draw()})}
+function draw(){const cats=[...new Set(L.map(x=>x.cat))];chipRow(document.getElementById('cat'),cats,K,v=>{K=v;C=''});chipRow(document.getElementById('deal'),['매매','전세','월세'],D,v=>D=v);
+ chipRow(document.getElementById('cx'),[...new Set(L.filter(x=>!K||x.cat===K).map(x=>x.complex))],C,v=>C=v);
+ const w=q.value.trim().toLowerCase();let r=L.filter(x=>(!K||x.cat===K)&&(!D||(x.deals||[x.deal]).includes(D))&&(!C||x.complex===C)&&(!w||(x.complex+' '+(x.type||'')+' '+x.cat).toLowerCase().includes(w)));
+ const s=document.getElementById('sort').value;r.sort((a,b)=>s==='low'?pv(a)-pv(b):s==='high'?pv(b)-pv(a):s==='area'?(b.pyeong||0)-(a.pyeong||0):0);
+ document.getElementById('cnt').textContent=r.length+'건';document.getElementById('list').innerHTML=r.slice(0,300).map(x=>card(x)).join('')+(r.length>300?'<p class="mut">300건까지 보여 드려요. 단지나 조건을 골라 주세요.</p>':'')||'<p class="mut">조건에 맞는 매물이 없어요.</p>'}
+q.oninput=draw;document.getElementById('sort').onchange=draw;loadListings().then(d=>{L=d;chrome('listings');draw()});</script>
+</body></html>

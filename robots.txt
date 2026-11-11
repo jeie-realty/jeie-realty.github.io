@@ -1,0 +1,7 @@
+# 시안: 모든 검색로봇 차단. 공개 때 아래처럼 바꿈
+#   User-agent: *
+#   Allow: /
+#   Disallow: /client
+#   Sitemap: https://[도메인]/sitemap.xml
+User-agent: *
+Disallow: /
