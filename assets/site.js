@@ -35,8 +35,10 @@ function chrome(active){
  <div class="hbtn"><button type="button" class="theme" id="themeBtn" aria-label="야간 모드 켜기"></button><a class="pill" href="client.html">내 매물 보기</a><a class="pill naver" href="${NAVER}" rel="noopener">네이버부동산</a></div>
  </div></header>`);
  const tb=document.getElementById('themeBtn'),MOON='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>',SUN='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
- const paint=()=>{const d=document.documentElement.dataset.theme==='dark';tb.innerHTML=(d?SUN:MOON)+`<span>${d?'주간':'야간'}</span>`;tb.setAttribute('aria-label',d?'야간 모드 끄기':'야간 모드 켜기')};paint();
- tb.onclick=()=>{const d=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=d;try{localStorage.setItem('theme',d)}catch(e){}paint()};
+ const mq=window.matchMedia?matchMedia('(prefers-color-scheme: dark)'):null,isDark=()=>{const t=document.documentElement.dataset.theme;return t?t==='dark':!!(mq&&mq.matches)};
+ const paint=()=>{const d=isDark();tb.innerHTML=(d?SUN:MOON)+`<span>${d?'주간':'야간'}</span>`;tb.setAttribute('aria-label',d?'야간 모드 끄기':'야간 모드 켜기')};paint();
+ if(mq&&mq.addEventListener)mq.addEventListener('change',paint);
+ tb.onclick=()=>{const d=isDark()?'light':'dark';document.documentElement.dataset.theme=d;try{localStorage.setItem('theme',d)}catch(e){}paint()};
  const dds=[...document.querySelectorAll('details.dd')];
  dds.forEach(d=>d.addEventListener('toggle',()=>{if(d.open)dds.forEach(o=>{if(o!==d)o.open=false})}));
  document.addEventListener('click',e=>{if(!e.target.closest('details.dd'))dds.forEach(d=>d.open=false)});
