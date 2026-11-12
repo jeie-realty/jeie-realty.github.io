@@ -7,7 +7,8 @@
 <meta property="og:type" content="website"><meta property="og:locale" content="ko_KR">
 <link rel="canonical" href="https://jeie-realty.github.io/">
 <link rel="icon" href="assets/logo.svg">
-<link rel="stylesheet" href="assets/site.css?v=11121300">
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/site.css?v=11121400">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"RealEstateAgent","name":"용산호반제이공인중개사사무소","alternateName":"용산 호반J부동산","address":{"@type":"PostalAddress","streetAddress":"서울특별시 용산구 한강대로 66, 1층 107호 (한강로2가, 용산호반써밋에이디션)","addressLocality":"서울특별시 용산구","addressCountry":"KR"},"telephone":"02-797-3575","faxNumber":"02-790-3575","email":"jeie3575@gmail.com","areaServed":["서울 용산구 한강로","용산","용산역"],"url":"https://jeie-realty.github.io/","sameAs":["https://m.land.naver.com/agency/info/jeie3575"]}</script>
 </head><body>
 <main class="home">
@@ -66,7 +67,7 @@
 <section id="contact" class="contact"><div class="wrap cwrap">
  <div class="cinfo">
   <span class="kick">CONTACT US</span>
-  <h2>믿고 맡길 수 있는 부동산,<br><em>호반J부동산</em>과 함께하세요</h2>
+  <h2>믿고 맡길 수 있는 부동산,<br><em>용산 호반J부동산</em>과 함께하세요</h2>
   <p class="mut" style="margin:0;font-size:16px;line-height:1.8">구하시는 매물이나 내놓으실 부동산 정보를 남겨주시면 확인 후 바로 연락드립니다.</p>
   <div><span class="lb">사무실</span><div class="ph1"><b>02-797-3575</b><a class="call" href="tel:027973575">전화</a></div></div>
   <div><span class="lb">휴대폰</span><div class="ph1"><b>010-9524-6002</b><a class="call" href="tel:01095246002">전화</a><a class="sms" href="sms:01095246002">문자</a></div></div>
@@ -87,12 +88,12 @@
   <label>요청사항<textarea name="req" rows="3" placeholder="입주 시기, 층수 등 자유롭게 적어주세요."></textarea></label>
   <label class="agree"><input type="checkbox" name="ok" required>[필수] 상담 및 연락을 위한 개인정보 이용에 동의합니다.</label>
   <button type="submit">매물 상담 신청하기</button>
-  <p class="hint">신청하기를 누르면 적어주신 내용으로 문자 창이 열려요. 보내기만 누르시면 접수됩니다.</p>
+  <p class="hint" id="askmsg" role="status">남겨주신 내용은 담당자에게 바로 전달되며 따로 보관하지 않아요.</p>
  </form>
 </div></section>
 
 </main>
-<script src="assets/site.js?v=11121300"></script>
+<script src="assets/site.js?v=11121400"></script>
 <script>
 loadListings().then(L=>{chrome('index');
  document.getElementById('cnt').innerHTML=L.length+'<small>건</small>';
@@ -103,8 +104,14 @@ loadListings().then(L=>{chrome('index');
 });
 let mode='구하기';
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{mode=b.dataset.k;document.querySelectorAll('.tabs button').forEach(o=>o.classList.toggle('on',o===b))});
-document.getElementById('ask').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target),g=k=>(f.get(k)||'').toString().trim();
- const body=[`[홈페이지 문의] 매물 ${mode}`,`성함: ${g('name')}`,`연락처: ${g('tel')}`,`${g('kind')} / ${g('deal')}`,g('where')&&`희망: ${g('where')}`,g('price')&&`금액: ${g('price')}`,g("req")&&`요청: ${g("req")}`].filter(Boolean).join('\n');
- location.href='sms:01095246002?&body='+encodeURIComponent(body)};
+const SB='https://ctgaawyuwqihybxrdcgt.supabase.co',KEY='sb_publishable_g-3Lbb_ygZL5gTvDvU06OA_HoWDzGaE';
+document.getElementById('ask').onsubmit=async e=>{e.preventDefault();const fm=e.target,f=new FormData(fm),g=k=>(f.get(k)||'').toString().trim(),btn=fm.querySelector('button[type=submit]'),msg=document.getElementById('askmsg');
+ btn.disabled=true;btn.textContent='보내는 중…';let r='';
+ try{const res=await fetch(SB+'/rest/v1/rpc/submit_inquiry',{method:'POST',headers:{'Content-Type':'application/json',apikey:KEY,Authorization:'Bearer '+KEY},
+  body:JSON.stringify({p_mode:mode,p_name:g('name'),p_tel:g('tel'),p_kind:g('kind'),p_deal:g('deal'),p_where:g('where'),p_price:g('price'),p_req:g('req')})});r=res.ok?await res.json():'err'}catch(_){r='err'}
+ btn.disabled=false;btn.textContent='매물 상담 신청하기';
+ if(r==='ok'){fm.reset();msg.textContent='접수됐어요. 확인 후 바로 연락드릴게요.';msg.className='hint ok'}
+ else if(r==='invalid'){msg.textContent='성함과 연락처를 다시 확인해 주세요.';msg.className='hint bad'}
+ else{msg.textContent='지금 접수가 어려워요. 02-797-3575 또는 010-9524-6002로 연락 주세요.';msg.className='hint bad'}};
 </script>
 </body></html>

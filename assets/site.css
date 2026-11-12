@@ -1,6 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@600;900&display=swap");
 :root{--bg:#ffffff;--card:#fff;--ink:#26221f;--mut:#6b6058;--line:#f1e2d6;--brand:#EB6100;--acc:#c24c08;--acc2:#fff1e6;--soft:#fff6ef;--chipink:#8f3605;--warn:#EB6100;--r:16px;--ph:linear-gradient(135deg,#ffd3b5,#f08a45);--tag:#c24c08;--foot:#ffffff;--shadow:0 1px 3px rgba(120,60,20,.08);--disp:"Noto Serif KR",serif;--body:"Noto Sans KR","Apple SD Gothic Neo",sans-serif;--naver:#027a38}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17130f;--card:#211b16;--ink:#efe9e4;--mut:#a89d94;--line:#3a2f27;--brand:#ff7a26;--acc:#ff9152;--acc2:#3a2516;--soft:#1f1812;--chipink:#ffb183;--warn:#c2500f;--naver:#5fd38f;--ph:linear-gradient(135deg,#8a4a24,#5a2c12);--tag:#d9560c;--foot:#1c1712;--shadow:0 4px 14px #0006}}
+/* 야간 모드: 버튼으로만 켬 */
+:root[data-theme="dark"]{--bg:#17130f;--card:#211b16;--ink:#efe9e4;--mut:#a89d94;--line:#3a2f27;--brand:#EB6100;--acc:#ff9152;--acc2:#3a2516;--soft:#1f1812;--chipink:#ffb183;--warn:#c2500f;--naver:#5fd38f;--ph:linear-gradient(135deg,#8a4a24,#5a2c12);--tag:#d9560c;--foot:#1c1712;--shadow:0 4px 14px #0006}
 *{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
 a{color:var(--acc)}img{max-width:100%}
 .demo-bar{background:var(--warn);color:#fff;text-align:center;font-size:13px;padding:6px 16px}
@@ -119,3 +120,11 @@ form.ask button[type=submit]{font:inherit;background:var(--brand);color:#fff;bor
 form.ask .hint{font-size:13px;color:var(--mut);margin:-6px 0 0}
 @media (max-width:760px){header.top .wrap{padding-top:8px;padding-bottom:8px}.logo img{height:38px}nav.main{order:3;width:100%;flex:0 0 100%;justify-content:space-between}nav.main>a,nav.main summary{padding:8px 8px;font-size:15px}.hbtn{margin-left:auto}.home section{padding:52px 0}.wrap{padding:0 16px}}
 @media (max-width:420px){.hbtn .pill:first-child{display:none}}
+
+.logo .dk{display:none}:root[data-theme="dark"] .logo .lt{display:none}:root[data-theme="dark"] .logo .dk{display:block}
+.theme{font:inherit;display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:700;font-size:14px;padding:7px 12px;border-radius:99px;cursor:pointer}
+:root[data-theme="dark"] .badge{background:var(--card)}
+:root[data-theme="dark"] .cx,:root[data-theme="dark"] .st{border-color:var(--line)}
+@media (max-width:420px){.theme span{display:none}}
+form.ask .hint.ok{color:#027a38;font-weight:700}form.ask .hint.bad{color:#b42318;font-weight:700}
+:root[data-theme="dark"] form.ask .hint.ok{color:#5fd38f}:root[data-theme="dark"] form.ask .hint.bad{color:#ff8a80}
