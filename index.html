@@ -8,7 +8,7 @@
 <link rel="canonical" href="https://jeie-realty.github.io/">
 <link rel="icon" href="assets/logo.svg">
 <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
-<link rel="stylesheet" href="assets/site.css?v=11121330">
+<link rel="stylesheet" href="assets/site.css?v=11121700">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"RealEstateAgent","name":"용산호반제이공인중개사사무소","alternateName":"용산 호반J부동산","address":{"@type":"PostalAddress","streetAddress":"서울특별시 용산구 한강대로 66, 1층 107호 (한강로2가, 용산호반써밋에이디션)","addressLocality":"서울특별시 용산구","addressCountry":"KR"},"telephone":"02-797-3575","faxNumber":"02-790-3575","email":"jeie3575@gmail.com","areaServed":["서울 용산구 한강로","용산","용산역"],"url":"https://jeie-realty.github.io/","sameAs":["https://m.land.naver.com/agency/info/jeie3575"]}</script>
 </head><body>
 <main class="home">
@@ -88,6 +88,8 @@
    <label>희망 금액<input name="price" placeholder="예: 보 1000 / 월 120"></label>
   </div>
   <label>요청사항<textarea name="req" rows="3" placeholder="입주 시기, 층수 등 자유롭게 적어주세요."></textarea></label>
+  <label>자동등록방지 * <span style="font-weight:500;color:var(--mut)">그림의 숫자 5자리를 입력해 주세요</span>
+   <span class="cap"><img id="capimg" alt="자동등록방지 숫자 그림"><button type="button" class="re" id="capre">새로고침</button><input name="cap" inputmode="numeric" autocomplete="off" maxlength="5" required placeholder="숫자 5자리"></span></label>
   <label class="agree"><input type="checkbox" name="ok" required>[필수] 상담 및 연락을 위한 개인정보 이용에 동의합니다.</label>
   <button type="submit">매물 상담 신청하기</button>
   <p class="hint" id="askmsg" role="status">남겨주신 내용은 담당자에게 바로 전달되며 따로 보관하지 않아요.</p>
@@ -107,12 +109,19 @@ loadListings().then(L=>{chrome('index');
 let mode='구하기';
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{mode=b.dataset.k;document.querySelectorAll('.tabs button').forEach(o=>o.classList.toggle('on',o===b))});
 const SB='https://ctgaawyuwqihybxrdcgt.supabase.co',KEY='sb_publishable_g-3Lbb_ygZL5gTvDvU06OA_HoWDzGaE';
+let capId=null;const H={'Content-Type':'application/json',apikey:KEY,Authorization:'Bearer '+KEY};
+async function loadCap(){capId=null;const im=document.getElementById('capimg');im.removeAttribute('src');
+ try{const r=await fetch(SB+'/rest/v1/rpc/get_captcha',{method:'POST',headers:H,body:'{}'});const j=r.ok?await r.json():null;
+  if(j&&j.id){capId=j.id;im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(j.svg)}}catch(_){}}
+document.getElementById('capre').onclick=()=>{loadCap();document.querySelector('#ask [name=cap]').value=''};loadCap();
 document.getElementById('ask').onsubmit=async e=>{e.preventDefault();const fm=e.target,f=new FormData(fm),g=k=>(f.get(k)||'').toString().trim(),btn=fm.querySelector('button[type=submit]'),msg=document.getElementById('askmsg');
  btn.disabled=true;btn.textContent='보내는 중…';let r='';
- try{const res=await fetch(SB+'/rest/v1/rpc/submit_inquiry',{method:'POST',headers:{'Content-Type':'application/json',apikey:KEY,Authorization:'Bearer '+KEY},
-  body:JSON.stringify({p_mode:mode,p_name:g('name'),p_tel:g('tel'),p_kind:g('kind'),p_deal:g('deal'),p_where:g('where'),p_price:g('price'),p_req:g('req')})});r=res.ok?await res.json():'err'}catch(_){r='err'}
+ try{const res=await fetch(SB+'/rest/v1/rpc/submit_inquiry',{method:'POST',headers:H,
+  body:JSON.stringify({p_cap_id:capId,p_cap:g('cap'),p_mode:mode,p_name:g('name'),p_tel:g('tel'),p_kind:g('kind'),p_deal:g('deal'),p_where:g('where'),p_price:g('price'),p_req:g('req')})});r=res.ok?await res.json():'err'}catch(_){r='err'}
  btn.disabled=false;btn.textContent='매물 상담 신청하기';
+ if(r!=='ok')fm.querySelector('[name=cap]').value='';loadCap();
  if(r==='ok'){fm.reset();msg.textContent='접수됐어요. 확인 후 바로 연락드릴게요.';msg.className='hint ok'}
+ else if(r==='captcha'){msg.textContent='자동등록방지 숫자가 맞지 않아요. 새 그림의 숫자를 입력해 주세요.';msg.className='hint bad'}
  else if(r==='invalid'){msg.textContent='성함과 연락처를 다시 확인해 주세요.';msg.className='hint bad'}
  else{msg.textContent='지금 접수가 어려워요. 02-797-3575 또는 010-9524-6002로 연락 주세요.';msg.className='hint bad'}};
 </script>

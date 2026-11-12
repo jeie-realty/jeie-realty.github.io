@@ -42,7 +42,7 @@ function items(){return (PAGE.items||[]).map(x=>{const {deal,...rest}=x;return n
 function condHtml(P){const F=[['입주일',P.move_in],['희망거래유형',P.want_deal],['희망보증금',P.want_deposit],['희망월세',P.want_rent]].filter(([,v])=>v);
  if(!F.length&&!P.cond)return '';
  return `<div class="note"><b>찾으시는 조건</b>${F.length?`<dl class="spec">${F.map(([l,v])=>`<dt>${l}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`:''}${P.cond?`<div style="white-space:pre-wrap;margin-top:4px">${esc(P.cond)}</div>`:''}</div>`}
-function telBtn(){return OFFICE.tel?`<a class="btn" href="tel:${OFFICE.tel.replace(/[^0-9]/g,'')}">${esc(OFFICE.tel)} 전화로 문의</a>`:''}
+function telBtn(){const t=(PAGE&&PAGE.staff==='대표'&&OFFICE.mobile)?OFFICE.mobile:OFFICE.tel;return t?`<a class="btn" href="tel:${t.replace(/[^0-9]/g,'')}">${esc(t)} 전화로 문의</a>`:''}
 function route(){if(!PAGE){$('#gate').hidden=false;$('#page').hidden=true;return}
  $('#gate').hidden=true;const el=$('#page');el.hidden=false;const L=items(),d=hp().get('d');
  const back=tok?`#t=${encodeURIComponent(tok)}`:'#';
