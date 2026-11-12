@@ -9,6 +9,7 @@
 <link rel="icon" href="assets/logo.svg">
 <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="assets/site.css?v=11121700">
+<style>form.ask label[hidden]{display:none}</style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"RealEstateAgent","name":"용산호반제이공인중개사사무소","alternateName":"용산 호반J부동산","address":{"@type":"PostalAddress","streetAddress":"서울특별시 용산구 한강대로 66, 1층 107호 (한강로2가, 용산호반써밋에이디션)","addressLocality":"서울특별시 용산구","addressCountry":"KR"},"telephone":"02-797-3575","faxNumber":"02-790-3575","email":"jeie3575@gmail.com","areaServed":["서울 용산구 한강로","용산","용산역"],"url":"https://jeie-realty.github.io/","sameAs":["https://m.land.naver.com/agency/info/jeie3575"]}</script>
 </head><body>
 <main class="home">
@@ -81,10 +82,13 @@
   <h3 style="margin:0;font-size:20px">간편 매물 문의 신청</h3>
   <div class="fg">
    <label>성함 *<input name="name" required placeholder="예: 홍길동"></label>
-   <label>연락처 *<input name="tel" type="tel" required placeholder="휴대폰 번호"></label>
+   <label>연락처 *<input name="tel" type="tel" inputmode="numeric" maxlength="12" required placeholder="숫자만 입력 (- 없이)"></label>
    <label>매물 종류 *<select name="kind"><option>상가</option><option>오피스</option><option>아파트</option><option>오피스텔</option><option>기타</option></select></label>
    <label>거래 유형 *<select name="deal"><option>월세</option><option>전세</option><option>매매</option></select></label>
-   <label>희망 단지 / 지역<input name="where" placeholder="예: 호반써밋, 한강로"></label>
+   <label class="m-find">희망 단지 / 지역<input name="where" placeholder="예: 호반써밋, 한강로"></label>
+   <label class="m-own" hidden>단지명 *<input name="odanji" placeholder="예: 용산 호반써밋"></label>
+   <label class="m-own" hidden>동<input name="odong" placeholder="예: 101 (동이 없으면 비워두세요)"></label>
+   <label class="m-own" hidden>호실 *<input name="oho" placeholder="예: 1203"></label>
    <label>희망 금액<input name="price" placeholder="예: 보 1000 / 월 120"></label>
   </div>
   <label>요청사항<textarea name="req" rows="3" placeholder="입주 시기, 층수 등 자유롭게 적어주세요."></textarea></label>
@@ -107,7 +111,11 @@ loadListings().then(L=>{chrome('index');
  if(location.hash){const t=document.querySelector(location.hash);if(t)t.scrollIntoView()}
 });
 let mode='구하기';
-document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{mode=b.dataset.k;document.querySelectorAll('.tabs button').forEach(o=>o.classList.toggle('on',o===b))});
+function setMode(k){mode=k;document.querySelectorAll('.tabs button').forEach(o=>o.classList.toggle('on',o.dataset.k===k));const own=k==='내놓기';
+ document.querySelectorAll('#ask .m-own').forEach(l=>l.hidden=!own);document.querySelectorAll('#ask .m-find').forEach(l=>l.hidden=own);
+ ['odanji','oho'].forEach(n=>document.querySelector('#ask [name='+n+']').required=own)}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>setMode(b.dataset.k));
+document.querySelector('#ask [name=tel]').addEventListener('input',e=>{const v=e.target.value.replace(/\D/g,'');if(v!==e.target.value)e.target.value=v});
 const SB='https://ctgaawyuwqihybxrdcgt.supabase.co',KEY='sb_publishable_g-3Lbb_ygZL5gTvDvU06OA_HoWDzGaE';
 let capId=null;const H={'Content-Type':'application/json',apikey:KEY,Authorization:'Bearer '+KEY};
 async function loadCap(){capId=null;const im=document.getElementById('capimg');im.removeAttribute('src');
@@ -117,10 +125,10 @@ document.getElementById('capre').onclick=()=>{loadCap();document.querySelector('
 document.getElementById('ask').onsubmit=async e=>{e.preventDefault();const fm=e.target,f=new FormData(fm),g=k=>(f.get(k)||'').toString().trim(),btn=fm.querySelector('button[type=submit]'),msg=document.getElementById('askmsg');
  btn.disabled=true;btn.textContent='보내는 중…';let r='';
  try{const res=await fetch(SB+'/rest/v1/rpc/submit_inquiry',{method:'POST',headers:H,
-  body:JSON.stringify({p_cap_id:capId,p_cap:g('cap'),p_mode:mode,p_name:g('name'),p_tel:g('tel'),p_kind:g('kind'),p_deal:g('deal'),p_where:g('where'),p_price:g('price'),p_req:g('req')})});r=res.ok?await res.json():'err'}catch(_){r='err'}
+  body:JSON.stringify({p_cap_id:capId,p_cap:g('cap'),p_mode:mode,p_name:g('name'),p_tel:g('tel'),p_kind:g('kind'),p_deal:g('deal'),p_where:mode==='내놓기'?[g('odanji'),g('odong')&&g('odong').replace(/동$/,'')+'동',g('oho')&&g('oho').replace(/호$/,'')+'호'].filter(Boolean).join(' '):g('where'),p_price:g('price'),p_req:g('req')})});r=res.ok?await res.json():'err'}catch(_){r='err'}
  btn.disabled=false;btn.textContent='매물 상담 신청하기';
  if(r!=='ok')fm.querySelector('[name=cap]').value='';loadCap();
- if(r==='ok'){fm.reset();msg.textContent='접수됐어요. 확인 후 바로 연락드릴게요.';msg.className='hint ok'}
+ if(r==='ok'){fm.reset();setMode(mode);msg.textContent='접수됐어요. 확인 후 바로 연락드릴게요.';msg.className='hint ok'}
  else if(r==='captcha'){msg.textContent='자동등록방지 숫자가 맞지 않아요. 새 그림의 숫자를 입력해 주세요.';msg.className='hint bad'}
  else if(r==='invalid'){msg.textContent='성함과 연락처를 다시 확인해 주세요.';msg.className='hint bad'}
  else{msg.textContent='지금 접수가 어려워요. 02-797-3575 또는 010-9524-6002로 연락 주세요.';msg.className='hint bad'}};
