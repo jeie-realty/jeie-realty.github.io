@@ -42,5 +42,5 @@ function chrome(active){
  document.addEventListener('click',e=>{if(!e.target.closest('details.dd'))dds.forEach(d=>d.open=false)});
  document.querySelectorAll('details.dd .menu a').forEach(a=>a.addEventListener('click',()=>dds.forEach(d=>d.open=false)));
  const line=[OFFICE.ceo&&`대표 ${OFFICE.ceo}`,OFFICE.reg&&`등록번호 ${OFFICE.reg}`].filter(Boolean).join(' · '),line2=[OFFICE.addr,OFFICE.tel&&`전화 ${OFFICE.tel}`,OFFICE.mobile&&`휴대폰 ${OFFICE.mobile}`,OFFICE.fax&&`팩스 ${OFFICE.fax}`,OFFICE.email&&`이메일 ${OFFICE.email}`,OFFICE.hours].filter(Boolean).join(' · ');
- document.body.insertAdjacentHTML('beforeend',`<footer><div class="wrap"><b>${OFFICE.name}</b>${OFFICE.legal?` (${OFFICE.legal})`:''}<br>${line}${line2?'<br>'+line2:''}
+ document.body.insertAdjacentHTML('beforeend',`<footer><div class="wrap"><b>${OFFICE.legal||OFFICE.name}</b>${OFFICE.legal?` · ${OFFICE.name}`:''}<br>${line}${line2?'<br>'+line2:''}
  <div class="legal">매물 정보는 공인중개사법 제18조의2에 따른 중개대상물 표시·광고 명시사항(소재지·면적·가격·거래형태·층·방향 등)을 반영해 표시하며, 정확한 호수는 공개하지 않아요. 실제 거래 조건은 상담으로 확인해 주세요.${window.LIST_UPDATED?` · 매물 갱신 ${window.LIST_UPDATED}`:''}</div></div></footer>`)}
