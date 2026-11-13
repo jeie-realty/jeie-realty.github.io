@@ -139,3 +139,5 @@ form.ask .cap{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
 form.ask .cap img{width:160px;height:50px;border-radius:8px;border:1px solid var(--line);background:#f4efe9}
 form.ask .cap .re{font:inherit;font-size:13px;font-weight:700;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);cursor:pointer}
 form.ask .cap input{flex:1 1 140px;min-width:0;letter-spacing:.2em}
+
+.vrbtn{display:inline-block;margin-top:10px;padding:7px 12px;border-radius:8px;background:#EB6100;color:#fff;font-weight:700;font-size:14px;text-decoration:none}.vrbtn small{font-weight:400;opacity:.9}.vrbtn:hover{filter:brightness(.95)}

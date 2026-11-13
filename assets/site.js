@@ -13,13 +13,13 @@ function priceHtml(x){if(x.prices)return x.prices.length?x.prices.map(([d,v])=>`
 const HUES={'매매':160,'전세':210,'월세':30};
 function photo(x){const h=HUES[x.deal]||200;return `<div class="ph" style="background:linear-gradient(135deg,hsl(${h} 35% 42%),hsl(${h+30} 40% 28%))" role="img" aria-label="${esc(x.complex)}">
  <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" opacity=".8"><path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-6h6v6"/></svg>
- <span class="tag">${esc(x.cat||x.deal)}</span><span class="cnt">사진 준비 중</span></div>`}
+ <span class="tag">${esc(x.cat||x.deal)}</span><span class="cnt">${x.vr?'VR 있음':'사진 준비 중'}</span></div>`}
 function card(x,extra=''){const sz=x.pyeong?`${x.pyeongKind||'전용'} ${x.pyeong}평${x.area?` (${x.area}㎡)`:''}`:'';
  return `<article class="card">${photo(x)}<div class="b">${priceHtml(x)}
  <div><b>${esc(x.complex)}</b>${x.type?` <span class="mut">· ${esc(x.type)}타입</span>`:''}</div>
  <div class="mut" style="font-size:14px">${[sz,x.floor,x.dir?x.dir+'향':''].filter(Boolean).map(esc).join(' · ')}</div>
  ${x.addr?`<div class="mut" style="font-size:13px">소재지 ${esc(x.addr)}</div>`:''}
- <div class="chips">${(x.points||[]).map(p=>`<span class="chip">${esc(p)}</span>`).join('')}${x.checked?`<span class="chip">${esc(x.checked)} 확인</span>`:''}</div>${extra}</div></article>`}
+ <div class="chips">${(x.points||[]).map(p=>`<span class="chip">${esc(p)}</span>`).join('')}${x.checked?`<span class="chip">${esc(x.checked)} 확인</span>`:''}</div>${x.vr&&/^https:\/\//.test(x.vr)?`<a class="vrbtn" href="${esc(x.vr)}" target="_blank" rel="noopener noreferrer">VR 보기 <small>(네이버·같은 평형)</small></a>`:''}${extra}</div></article>`}
 const NAVER='https://m.land.naver.com/agency/info/jeie3575';
 function chrome(active){
  const sub=(href,l)=>`<a href="${href}">${l}</a>`;
